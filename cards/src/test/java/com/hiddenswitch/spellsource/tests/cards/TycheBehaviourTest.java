@@ -96,7 +96,7 @@ public class TycheBehaviourTest extends TestBase implements Serializable {
 			// Southsea MUST attack before weapon attacks
 			// Sun cleric MUST be played after southsea and should NOT buff a minion that gains a huge amount of hp
 			// This is a depth 6 puzzle.
-			assertNull(player.getHero().getWeapon());
+			assertNull(player.getWeaponZone().get(0));
 			assertTrue(context.updateAndGetGameOver());
 		}, "BLACK", "BLACK");
 	}

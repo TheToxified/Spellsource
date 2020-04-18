@@ -732,8 +732,8 @@ public class TycheBehaviour extends IntelligentBehaviour {
 					minion.getAttributeValue(Attribute.NUMBER_OF_ATTACKS) + minion.getAttributeValue(Attribute.EXTRA_ATTACKS),
 					minion.hasAttribute(Attribute.TAUNT) || minion.hasAttribute(Attribute.AURA_TAUNT),
 					minion.hasAttribute(Attribute.POISONOUS) || minion.hasAttribute(Attribute.AURA_POISONOUS),
-					minion.hasAttribute(Attribute.DEATHRATTLES) || (minion.getDeathrattles() != null && minion.getDeathrattles().size() > 0),
-					minion.getSourceCard() != null && minion.getSourceCard().getDesc().getTrigger() != null && minion.getSourceCard().getDesc().getTrigger().eventTrigger.getDescClass() == InspireTrigger.class,
+					minion.hasAttribute(Attribute.DEATHRATTLES),
+					minion.getSourceCard() != null && minion.getSourceCard().getDesc().getTrigger() != null && minion.getSourceCard().getDesc().getTrigger().getEventTrigger().getDescClass() == InspireTrigger.class,
 					minion.hasAttribute(Attribute.DIVINE_SHIELD),
 					minion.hasAttribute(Attribute.LIFESTEAL) || minion.hasAttribute(Attribute.AURA_LIFESTEAL),
 					minion.hasAttribute(Attribute.CHARGE) || minion.hasAttribute(Attribute.AURA_CHARGE),
@@ -786,9 +786,9 @@ public class TycheBehaviour extends IntelligentBehaviour {
 			s.Fatigue = me.getAttributeValue(Attribute.FATIGUE);
 			s.MinionValues = MinionUtil.computeMinionValues(me);
 
-			if (me.getHero().getWeapon() != null) {
-				s.WeaponDurability = me.getHero().getWeapon().getDurability();
-				s.WeaponDamage = me.getHero().getWeapon().getWeaponDamage();
+			if (!me.getWeaponZone().isEmpty()) {
+				s.WeaponDurability = me.getWeaponZone().get(0).getDurability();
+				s.WeaponDamage = me.getWeaponZone().get(0).getWeaponDamage();
 			}
 
 			//this case is met, if the player uses a card that temporarily boosts attack:

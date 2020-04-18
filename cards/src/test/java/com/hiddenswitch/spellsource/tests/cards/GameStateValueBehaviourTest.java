@@ -15,7 +15,6 @@ import net.demilich.metastone.game.entities.minions.Minion;
 import net.demilich.metastone.game.events.GameStartEvent;
 import net.demilich.metastone.game.behaviour.GameStateValueBehaviour;
 import net.demilich.metastone.game.logic.GameLogic;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
@@ -149,7 +148,7 @@ public class GameStateValueBehaviourTest extends TestBase implements Serializabl
 				receiveCard(context, player, "spell_test_discover3");
 			}
 			shuffleToDeck(context, player, "passive_zero_cost");
-			context.fireGameEvent(new GameStartEvent(context, player.getId()));
+			context.getLogic().fireGameEvent(new GameStartEvent(context, player.getId()));
 			assertEquals(costOf(context, player, player.getHand().get(0)), 0);
 			context.setBehaviour(player.getId(), checkDepth);
 
@@ -348,7 +347,7 @@ public class GameStateValueBehaviourTest extends TestBase implements Serializabl
 			List<GameAction> actions = context.getValidActions();
 			assertTrue(actions.stream().anyMatch(ga -> fireball.getReference().equals(ga.getSourceReference())
 					&& opponent.getHero().getReference().equals(ga.getTargetReference())), "The player should be able to cast the Fireball on the opponent's hero");
-			assertTrue(actions.stream().anyMatch(ga -> player.getHero().getHeroPower().getReference().equals(ga.getSourceReference())
+			assertTrue(actions.stream().anyMatch(ga -> player.getHeroPowerZone().get(0).getReference().equals(ga.getSourceReference())
 					&& opponent.getHero().getReference().equals(ga.getTargetReference())), "The player should be able to Fireblast on the opponent's hero");
 			GameStateValueBehaviour behaviour = new GameStateValueBehaviour();
 			GameAction chosen = behaviour.requestAction(context, player, actions);

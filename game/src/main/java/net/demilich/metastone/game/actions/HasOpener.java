@@ -1,24 +1,24 @@
 package net.demilich.metastone.game.actions;
 
-import net.demilich.metastone.game.spells.desc.BattlecryDesc;
+import net.demilich.metastone.game.spells.desc.OpenerDesc;
 
 /**
  * Indicates this action could later create prompt the user for a battlecry targeting option.
  * <p>
  * Choose-one effects on actors are implemented as choosing their battlecry.
  */
-public interface HasBattlecry {
+public interface HasOpener {
 	/**
 	 * Gets a battlecry description for this object.
 	 *
 	 * @return
 	 */
-	BattlecryDesc getBattlecry();
+	OpenerDesc getOpener();
 
 	/**
 	 * Sets the battlecry. May not be supported.
 	 *
 	 * @param action
 	 */
-	void setBattlecry(BattlecryDesc action);
+	void setOpener(OpenerDesc action);
 }

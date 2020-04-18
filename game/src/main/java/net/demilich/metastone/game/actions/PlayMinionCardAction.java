@@ -1,5 +1,6 @@
 package net.demilich.metastone.game.actions;
 
+import co.paralleluniverse.common.util.Objects;
 import co.paralleluniverse.fibers.Suspendable;
 import com.hiddenswitch.spellsource.client.models.ActionType;
 import net.demilich.metastone.game.GameContext;
@@ -8,7 +9,7 @@ import net.demilich.metastone.game.cards.Card;
 import net.demilich.metastone.game.entities.Actor;
 import net.demilich.metastone.game.entities.minions.Minion;
 import net.demilich.metastone.game.entities.minions.Race;
-import net.demilich.metastone.game.spells.desc.BattlecryDesc;
+import net.demilich.metastone.game.spells.desc.OpenerDesc;
 import net.demilich.metastone.game.targeting.EntityReference;
 import net.demilich.metastone.game.targeting.TargetSelection;
 import net.demilich.metastone.game.cards.Attribute;
@@ -27,25 +28,18 @@ import java.util.Collection;
  * <p>
  * Typically, the battlecry is resolved in this action. The {@link #PlayMinionCardAction(net.demilich.metastone.game.targeting.EntityReference)}
  * will retrieve the battlecry that appears once the minion is summoned. Choose one minion cards override the battlecry
- * using {@link #PlayMinionCardAction(EntityReference, BattlecryDesc)}.
+ * using {@link #PlayMinionCardAction(EntityReference, OpenerDesc)}.
  */
-public final class PlayMinionCardAction extends PlayCardAction implements HasBattlecry {
-
-	private BattlecryDesc battlecry;
-
-	private PlayMinionCardAction() {
-		super(null);
-		setTargetRequirement(TargetSelection.FRIENDLY_MINIONS);
-		setActionType(ActionType.SUMMON);
-	}
+public final class PlayMinionCardAction extends PlayCardAction implements HasOpener {
+	private OpenerDesc opener;
 
 	public PlayMinionCardAction(EntityReference EntityReference) {
 		this(EntityReference, null);
 	}
 
-	public PlayMinionCardAction(EntityReference minionCard, BattlecryDesc battlecry) {
+	public PlayMinionCardAction(EntityReference minionCard, OpenerDesc opener) {
 		super(minionCard);
-		this.battlecry = battlecry;
+		this.opener = opener;
 		setTargetRequirement(TargetSelection.FRIENDLY_MINIONS);
 		setActionType(ActionType.SUMMON);
 	}
@@ -53,7 +47,7 @@ public final class PlayMinionCardAction extends PlayCardAction implements HasBat
 	@Override
 	public PlayMinionCardAction clone() {
 		PlayMinionCardAction clone = (PlayMinionCardAction) super.clone();
-		clone.battlecry = battlecry != null ? battlecry.clone() : null;
+		clone.opener = opener != null ? opener.clone() : null;
 		return clone;
 	}
 
@@ -62,10 +56,7 @@ public final class PlayMinionCardAction extends PlayCardAction implements HasBat
 	public void innerExecute(GameContext context, int playerId) {
 		Card card = (Card) context.resolveSingleTarget(getSourceReference());
 		Actor nextTo = (Actor) (getTargetReference() != null ? context.resolveSingleTarget(getTargetReference()) : null);
-		Minion minion = card.summon();
-		if (battlecry != null) {
-			minion.setBattlecry(battlecry);
-		}
+		Minion minion = card.minion();
 		Player player = context.getPlayer(playerId);
 		int index = player.getMinions().indexOf(nextTo);
 		if (card.hasAttribute(Attribute.MAGNETIC) && nextTo instanceof Minion && Race.hasRace(context, nextTo, "MECH")) {
@@ -77,12 +68,12 @@ public final class PlayMinionCardAction extends PlayCardAction implements HasBat
 	}
 
 	@Override
-	public BattlecryDesc getBattlecry() {
-		return battlecry;
+	public OpenerDesc getOpener() {
+		return opener;
 	}
 
 	@Override
-	public void setBattlecry(BattlecryDesc action) {
-		battlecry = action;
+	public void setOpener(OpenerDesc action) {
+		opener = action;
 	}
 }

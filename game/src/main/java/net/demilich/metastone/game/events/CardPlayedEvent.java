@@ -1,5 +1,6 @@
 package net.demilich.metastone.game.events;
 
+import com.hiddenswitch.spellsource.client.models.GameEvent.EventTypeEnum;
 import net.demilich.metastone.game.GameContext;
 import net.demilich.metastone.game.cards.Card;
 import net.demilich.metastone.game.entities.Entity;
@@ -10,7 +11,7 @@ public final class CardPlayedEvent extends GameEvent implements HasCard {
 	private final Card card;
 
 	public CardPlayedEvent(GameContext context, int playerId, Card card) {
-		super(context, playerId, -1);
+		super(context, playerId, card.getId());
 		this.card = card;
 	}
 
@@ -25,8 +26,13 @@ public final class CardPlayedEvent extends GameEvent implements HasCard {
 	}
 
 	@Override
-	public com.hiddenswitch.spellsource.client.models.GameEvent.EventTypeEnum getEventType() {
-		return com.hiddenswitch.spellsource.client.models.GameEvent.EventTypeEnum.PLAY_CARD;
+	public Entity getEventSource() {
+		return getSourceCard();
+	}
+
+	@Override
+	public EventTypeEnum getEventType() {
+		return EventTypeEnum.PLAY_CARD;
 	}
 
 	@Override

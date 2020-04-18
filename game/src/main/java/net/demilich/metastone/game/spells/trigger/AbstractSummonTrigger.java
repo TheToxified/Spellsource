@@ -51,13 +51,13 @@ public abstract class AbstractSummonTrigger extends EventTrigger {
 	}
 
 	@Override
-	public boolean fires(GameEvent event) {
+	public boolean fires(GameEvent event, Entity host) {
 		SummonEvent summonEvent = (SummonEvent) event;
 		// Don't trigger if the minion is no longer on the board
 		if (!summonEvent.getMinion().isInPlay() || summonEvent.getMinion().isRemovedPeacefully()) {
 			return false;
 		}
-		return super.fires(event);
+		return super.fires(event, host);
 	}
 
 	protected boolean onlyPlayedFromHandOrDeck() {

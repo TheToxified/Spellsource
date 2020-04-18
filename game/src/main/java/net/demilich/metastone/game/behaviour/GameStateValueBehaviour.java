@@ -93,7 +93,7 @@ import static java.util.stream.Collectors.toList;
  * GameStateValueBehaviour the best delivered AI in the Hearthstone community.
  *
  * @see #requestAction(GameContext, Player, List) to see how each action of the possible actions is tested for the one
- * 		with the highest score.
+ * with the highest score.
  */
 public class GameStateValueBehaviour extends IntelligentBehaviour {
 	public static final int DEFAULT_TARGET_CONTEXT_STACK_SIZE = 2 * 7 * 6 - 1;
@@ -462,7 +462,7 @@ public class GameStateValueBehaviour extends IntelligentBehaviour {
 			}
 			Card[] cards = new Card[player.getHand().size() + 1];
 			player.getHand().toArray(cards);
-			cards[cards.length - 1] = player.getHero().getHeroPower();
+			cards[cards.length - 1] = player.getHeroPowerZone().get(0);
 			for (int i = 0; i < cards.length; i++) {
 				Card card = cards[i];
 				if (context.getLogic().canPlayCard(player, card)) {
@@ -551,7 +551,7 @@ public class GameStateValueBehaviour extends IntelligentBehaviour {
 				// them around to get their effects.
 				if (isPruneEarlyEndTurn()
 						&& edges.size() > 1
-						&& context.getTriggerManager().getTriggers()
+						&& context.getTriggers()
 						.stream().flatMap(t -> t instanceof Enchantment ? ((Enchantment) t).getTriggers().stream() : Stream.empty()).noneMatch(t -> t instanceof TurnTrigger)) {
 					edges.removeIf(ga -> ga.getActionType() == ActionType.END_TURN);
 				}
@@ -879,11 +879,11 @@ public class GameStateValueBehaviour extends IntelligentBehaviour {
 
 			// Make sure that friendly start turns don't accidentally wind up killing the opponent
 			int opponentHp = opponent.getHero().getHp();
-			for (Trigger trigger : new ArrayList<>(context.getTriggerManager().getTriggers())) {
+			for (Trigger trigger : new ArrayList<>(context.getTriggers())) {
 				if (trigger instanceof Enchantment && !(trigger instanceof Aura) && !trigger.isExpired()) {
 					Enchantment enchantment = (Enchantment) trigger;
 					if (enchantment.getTriggers().stream().anyMatch(e -> e.getClass().equals(TurnStartTrigger.class)
-							|| (e.getClass().equals(TurnEndTrigger.class) && e.getOwner() == opponent.getId()))) {
+							|| (e.getClass().equals(TurnEndTrigger.class) && enchantment.getOwner() == opponent.getId()))) {
 						// Correctly set the trigger stacks
 						context.getTriggerHostStack().push(trigger.getHostReference());
 						context.getLogic().castSpell(trigger.getOwner(), enchantment.getSpell(), trigger.getHostReference(), EntityReference.NONE, TargetSelection.NONE, true, null);
@@ -1291,11 +1291,15 @@ public class GameStateValueBehaviour extends IntelligentBehaviour {
 				damage += minion.canAttackThisTurn() ? (minion.getAttack() * (minion.getAttributeValue(Attribute.NUMBER_OF_ATTACKS) + minion.getAttributeValue(Attribute.EXTRA_ATTACKS))) : 0;
 			}
 			Hero hero = player.getHero();
-			damage += hero.canAttackThisTurn() ? (hero.getAttack() * (hero.getAttributeValue(Attribute.NUMBER_OF_ATTACKS) + hero.getAttributeValue(Attribute.EXTRA_ATTACKS))) : 0;
+			var heroAttack = hero.getAttack();
+			if (!player.getWeaponZone().isEmpty() && player.getWeaponZone().get(0).isActive()) {
+				heroAttack += player.getWeaponZone().get(0).getAttack();
+			}
+			damage += hero.canAttackThisTurn() ? (heroAttack * (hero.getAttributeValue(Attribute.NUMBER_OF_ATTACKS) + hero.getAttributeValue(Attribute.EXTRA_ATTACKS))) : 0;
 
 			Card[] cards = new Card[player.getHand().size() + 1];
 			player.getHand().toArray(cards);
-			cards[cards.length - 1] = player.getHero().getHeroPower();
+			cards[cards.length - 1] = player.getHeroPowerZone().get(0);
 
 			int maxWeaponDamage = 0;
 			int cardDamage = 0;

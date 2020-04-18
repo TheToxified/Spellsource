@@ -23,7 +23,7 @@ public class MonkTests extends TestBase {
 			spell.put(SpellArg.CARD, "hero_power_hone_reflexes");
 			context.getLogic().castSpell(player.getId(), spell, player.getReference(), null, TargetSelection.NONE, false, null);
 			context.getLogic().endOfSequence();
-			assertEquals(player.getHero().getHeroPower().getCardId(), "hero_power_hone_reflexes");
+			assertEquals(player.getHeroPowerZone().get(0).getCardId(), "hero_power_hone_reflexes");
 			useHeroPower(context, player);
 			assertEquals(player.getHero().getAttack(), player.getHero().getBaseAttack() + 3);
 			context.endTurn();
@@ -126,7 +126,7 @@ public class MonkTests extends TestBase {
 			spell.put(SpellArg.CARD, "hero_power_hone_reflexes");
 			context.getLogic().castSpell(player.getId(), spell, player.getReference(), null, TargetSelection.NONE, false, null);
 			context.getLogic().endOfSequence();
-			Card heroPower = player.getHero().getHeroPower();
+			Card heroPower = player.getHeroPowerZone().get(0);
 			assertEquals(heroPower.getCardId(), "hero_power_hone_reflexes");
 			player.setMana(20);
 			assertTrue(context.getLogic().canPlayCard(player.getId(), heroPower.getReference()));
@@ -167,9 +167,9 @@ public class MonkTests extends TestBase {
 	@Test
 	public void testSpellHoneReflexes() {
 		runGym(((context, player, opponent) -> {
-			assertNotEquals(player.getHero().getHeroPower().getCardId(), "hero_power_hone_reflexes");
+			assertNotEquals(player.getHeroPowerZone().get(0).getCardId(), "hero_power_hone_reflexes");
 			playCard(context, player, "spell_hone_reflexes");
-			assertEquals(player.getHero().getHeroPower().getCardId(), "hero_power_hone_reflexes");
+			assertEquals(player.getHeroPowerZone().get(0).getCardId(), "hero_power_hone_reflexes");
 		}));
 	}
 
@@ -228,7 +228,7 @@ public class MonkTests extends TestBase {
 			playCard(context, player, "spell_test_deal_6", deflectMinion);
 			assertFalse(deflectMinion.isDestroyed());
 			assertEquals(player.getHero().getHp(), player.getHero().getMaxHp());
-			assertEquals(player.getHero().getWeapon().getDurability(), player.getHero().getWeapon().getMaxDurability() - 1);
+			assertEquals(player.getWeaponZone().get(0).getDurability(), player.getWeaponZone().get(0).getMaxDurability() - 1);
 		}));
 
 		runGym(((context, player, opponent) -> {
@@ -237,7 +237,7 @@ public class MonkTests extends TestBase {
 			playCard(context, player, "spell_test_deal_6", deflectMinion);
 			assertFalse(deflectMinion.isDestroyed());
 			assertEquals(player.getHero().getHp(), player.getHero().getMaxHp());
-			assertEquals(player.getHero().getWeapon().getDurability(), player.getHero().getWeapon().getMaxDurability());
+			assertEquals(player.getWeaponZone().get(0).getDurability(), player.getWeaponZone().get(0).getMaxDurability());
 			assertEquals(opponent.getHero().getHp(), opponent.getHero().getMaxHp() - 6);
 		}));
 	}

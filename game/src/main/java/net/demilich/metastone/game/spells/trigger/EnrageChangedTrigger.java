@@ -21,8 +21,8 @@ public class EnrageChangedTrigger extends EventTrigger {
 	}
 
 	@Override
-	public com.hiddenswitch.spellsource.client.models.GameEvent.EventTypeEnum interestedIn() {
-		return com.hiddenswitch.spellsource.client.models.GameEvent.EventTypeEnum.ENRAGE_CHANGED;
+	public EventTypeEnum interestedIn() {
+		return EventTypeEnum.ENRAGE_CHANGED;
 	}
 
 }

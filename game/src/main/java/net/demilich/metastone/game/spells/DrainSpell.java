@@ -74,7 +74,7 @@ public final class DrainSpell extends Spell {
 		}
 
 		for (DrainEvent event : events) {
-			context.fireGameEvent(event);
+			context.getLogic().fireGameEvent(event);
 		}
 	}
 

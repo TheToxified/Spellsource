@@ -9,7 +9,6 @@ import net.demilich.metastone.game.cards.CardCatalogue;
 import net.demilich.metastone.game.entities.Entity;
 import com.hiddenswitch.spellsource.client.models.EntityType;
 import net.demilich.metastone.game.cards.Attribute;
-import net.demilich.metastone.tests.util.TestMinionCard;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -30,7 +29,7 @@ public class TargetingTests extends TestBase {
 		Card tauntCard = CardCatalogue.getCardById("minion_test_taunts");
 		context.getLogic().receiveCard(victim.getId(), tauntCard);
 
-		Card attackerCard = new TestMinionCard(1, 1, 0);
+		Card attackerCard = net.demilich.metastone.tests.util.TestBase.receive(context, player, 1, 1, 0);
 		context.getLogic().receiveCard(monk.getId(), attackerCard);
 
 		context.performAction(victim.getId(), tauntCard.play());
@@ -46,7 +45,7 @@ public class TargetingTests extends TestBase {
 		validTargets = context.getLogic().getValidTargets(monk.getId(), attackAction);
 		assertEquals(validTargets.size(), 1);
 
-		GameAction fireblast = monk.getHero().getHeroPower().play();
+		GameAction fireblast = monk.getHeroPowerZone().get(0).play();
 		validTargets = context.getLogic().getValidTargets(monk.getId(), fireblast);
 		assertEquals(validTargets.size(), 4);
 

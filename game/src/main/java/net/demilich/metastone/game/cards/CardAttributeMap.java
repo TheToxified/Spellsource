@@ -120,8 +120,6 @@ public final class CardAttributeMap extends AttributeMap implements Cloneable, J
 					return HasEntrySet.link(desc.getDeckTrigger(), desc.getDeckTriggers(), EnchantmentDesc.class);
 				case GAME_TRIGGERS:
 					return desc.getGameTriggers();
-				case PASSIVE_AURAS:
-					return desc.getPassiveAuras();
 				case RACE:
 					return desc.getRace() == null ? Race.NONE : desc.getRace();
 				case SECRET:
@@ -178,8 +176,6 @@ public final class CardAttributeMap extends AttributeMap implements Cloneable, J
 				return desc.getManaCostModifier() != null;
 			case PASSIVE_TRIGGERS:
 				return desc.getPassiveTrigger() != null || (desc.getPassiveTriggers() != null && desc.getPassiveTriggers().length > 0);
-			case PASSIVE_AURAS:
-				return desc.getPassiveAuras() != null && desc.getPassiveAuras().length > 0;
 			case DECK_TRIGGERS:
 				return desc.getDeckTrigger() != null || (desc.getDeckTriggers() != null && desc.getDeckTriggers().length > 0);
 			case GAME_TRIGGERS:

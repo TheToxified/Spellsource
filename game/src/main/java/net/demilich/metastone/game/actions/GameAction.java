@@ -197,3 +197,4 @@ public abstract class GameAction implements Cloneable, Serializable, Notificatio
 		return this;
 	}
 }
+

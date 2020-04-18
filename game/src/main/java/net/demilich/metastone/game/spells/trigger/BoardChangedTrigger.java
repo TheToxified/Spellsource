@@ -15,6 +15,10 @@ public class BoardChangedTrigger extends EventTrigger {
 		super(desc);
 	}
 
+	public static EventTrigger create() {
+		return new BoardChangedTrigger();
+	}
+
 	@Override
 	protected boolean innerQueues(GameEvent event, Entity host) {
 		return true;

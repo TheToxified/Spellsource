@@ -110,7 +110,7 @@ public class TargetLogic implements Serializable {
 			return entity.get();
 		} else {
 			// Check the triggers
-			for (Trigger trigger : context.getTriggerManager().getTriggers()) {
+			for (Trigger trigger : context.getTriggers()) {
 				if (trigger instanceof Enchantment && ((Enchantment) trigger).getId() == targetId) {
 					return (Entity) trigger;
 				}
@@ -371,15 +371,15 @@ public class TargetLogic implements Serializable {
 		} else if (targetKey.equals(EntityReference.OUTPUT)) {
 			return singleTargetAsList(context.resolveSingleTarget(context.getOutputStack().peek()));
 		} else if (targetKey.equals(EntityReference.FRIENDLY_WEAPON)) {
-			if (player.getHero().getWeapon() != null) {
-				return singleTargetAsList(player.getHero().getWeapon());
+			if (!player.getWeaponZone().isEmpty()) {
+				return singleTargetAsList(player.getWeaponZone().get(0));
 			} else {
 				return new ArrayList<>();
 			}
 		} else if (targetKey.equals(EntityReference.ENEMY_WEAPON)) {
 			Player opponent = context.getOpponent(player);
-			if (opponent.getHero().getWeapon() != null) {
-				return singleTargetAsList(opponent.getHero().getWeapon());
+			if (!opponent.getWeaponZone().isEmpty()) {
+				return singleTargetAsList(opponent.getWeaponZone().get(0));
 			} else {
 				return new ArrayList<>();
 			}

@@ -79,7 +79,7 @@ public final class DecaySpell extends Spell {
 			context.getLogic().damage(player, (Actor) target, damage, source, true, DamageTypeEnum.DECAY);
 		} else if (target instanceof Weapon) {
 			int durabilityChange = desc.getValue(SpellArg.VALUE, context, player, target, source, -1);
-			context.getLogic().modifyDurability(player.getHero().getWeapon(), durabilityChange);
+			context.getLogic().modifyDurability(player.getWeaponZone().get(0), durabilityChange);
 		}
 	}
 

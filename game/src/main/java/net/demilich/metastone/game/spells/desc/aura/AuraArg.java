@@ -28,5 +28,6 @@ public enum AuraArg {
 	REMOVE_EFFECT,
 	DESCRIPTION,
 	NAME,
-	SPELL
+	SPELL,
+	ZONES
 }

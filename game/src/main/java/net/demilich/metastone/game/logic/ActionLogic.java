@@ -48,7 +48,7 @@ public class ActionLogic implements Serializable {
 	@Suspendable
 	private List<GameAction> getHeroPowerActions(GameContext context, Player player) {
 		List<GameAction> heroPowerActions = new ArrayList<GameAction>();
-		Card heroPower = player.getHero().getHeroPower();
+		Card heroPower = player.getHeroPowerZone().get(0);
 
 		EntityReference heroPowerReference = new EntityReference(heroPower.getId());
 		if (!context.getLogic().canPlayCard(player.getId(), heroPowerReference)) {
@@ -73,7 +73,7 @@ public class ActionLogic implements Serializable {
 				continue;
 			}
 
-			List<PhysicalAttackTargetOverrideAura> filters = context.getTriggersAssociatedWith(minion.getReference()).stream()
+			List<PhysicalAttackTargetOverrideAura> filters = context.getLogic().getActiveTriggers(minion.getReference()).stream()
 					.filter(trigger -> trigger instanceof PhysicalAttackTargetOverrideAura)
 					.map(trigger -> (PhysicalAttackTargetOverrideAura) trigger).collect(Collectors.toList());
 			if (!filters.isEmpty()) {
@@ -172,7 +172,7 @@ public class ActionLogic implements Serializable {
 
 	@Suspendable
 	boolean hasAutoHeroPower(GameContext context, Player player) {
-		Card heroPower = player.getHero().getHeroPower();
+		Card heroPower = player.getHeroPowerZone().get(0);
 
 		EntityReference heroPowerReference = new EntityReference(heroPower.getId());
 		return (context.getLogic().canPlayCard(player.getId(), heroPowerReference) && heroPower.getTargetSelection() == TargetSelection.AUTO);

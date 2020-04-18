@@ -1,7 +1,8 @@
 package net.demilich.metastone.game.events;
 
+import com.hiddenswitch.spellsource.client.models.GameEvent.EventTypeEnum;
 import net.demilich.metastone.game.GameContext;
-import net.demilich.metastone.game.actions.BattlecryAction;
+import net.demilich.metastone.game.actions.OpenerAction;
 import net.demilich.metastone.game.cards.Card;
 import net.demilich.metastone.game.entities.Actor;
 import net.demilich.metastone.game.entities.Entity;
@@ -11,16 +12,16 @@ import org.jetbrains.annotations.NotNull;
 public class SummonEvent extends GameEvent implements HasCard {
 
 	private final boolean resolvedBattlecry;
-	private final BattlecryAction[] battlecryActions;
+	private final OpenerAction[] openerActions;
 	private final Actor minion;
 	private final Entity source;
 
-	public SummonEvent(@NotNull GameContext context, @NotNull Actor minion, @NotNull Entity source, boolean resolvedBattlecry, BattlecryAction... battlecryActions) {
+	public SummonEvent(@NotNull GameContext context, @NotNull Actor minion, @NotNull Entity source, boolean resolvedBattlecry, OpenerAction... openerActions) {
 		super(context, minion.getOwner(), source.getOwner());
 		this.minion = minion;
 		this.source = source;
 		this.resolvedBattlecry = resolvedBattlecry;
-		this.battlecryActions = battlecryActions;
+		this.openerActions = openerActions;
 	}
 
 	@Override
@@ -36,8 +37,8 @@ public class SummonEvent extends GameEvent implements HasCard {
 	}
 
 	@Override
-	public com.hiddenswitch.spellsource.client.models.GameEvent.EventTypeEnum getEventType() {
-		return com.hiddenswitch.spellsource.client.models.GameEvent.EventTypeEnum.SUMMON;
+	public EventTypeEnum getEventType() {
+		return EventTypeEnum.SUMMON;
 	}
 
 	@NotNull
@@ -60,7 +61,7 @@ public class SummonEvent extends GameEvent implements HasCard {
 		return resolvedBattlecry;
 	}
 
-	public BattlecryAction[] getBattlecryActions() {
-		return battlecryActions;
+	public OpenerAction[] getOpenerActions() {
+		return openerActions;
 	}
 }

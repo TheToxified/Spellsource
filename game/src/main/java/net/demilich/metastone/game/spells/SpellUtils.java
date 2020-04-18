@@ -19,7 +19,7 @@ import net.demilich.metastone.game.entities.minions.BoardPositionRelative;
 import net.demilich.metastone.game.environment.Environment;
 import net.demilich.metastone.game.logic.GameLogic;
 import net.demilich.metastone.game.spells.aura.Aura;
-import net.demilich.metastone.game.spells.desc.BattlecryDesc;
+import net.demilich.metastone.game.spells.desc.OpenerDesc;
 import net.demilich.metastone.game.spells.desc.SpellArg;
 import net.demilich.metastone.game.spells.desc.SpellDesc;
 import net.demilich.metastone.game.spells.desc.aura.AuraArg;
@@ -179,13 +179,13 @@ public class SpellUtils {
 			}
 
 			// Do we resolve battlecries?
-			if (!resolveBattlecry && action instanceof HasBattlecry) {
-				HasBattlecry actionWithBattlecry = ((HasBattlecry) action);
+			if (!resolveBattlecry && action instanceof HasOpener) {
+				HasOpener actionWithBattlecry = ((HasOpener) action);
 				// No matter what the battlecry, clear it. This way, when the action is executed, resolve battlecry can be
 				// true but this method's parameter to not resolve battlecries will be respected
-				BattlecryDesc nullBattlecry = new BattlecryDesc();
+				OpenerDesc nullBattlecry = new OpenerDesc();
 				nullBattlecry.spell = NullSpell.create();
-				actionWithBattlecry.setBattlecry(nullBattlecry);
+				actionWithBattlecry.setOpener(nullBattlecry);
 			}
 		} else if (card.isSpell() || card.isHeroPower()) {
 			// This is some other kind of action that takes a target. Process possible target modification first.
@@ -613,31 +613,8 @@ public class SpellUtils {
 	 */
 	static AttributeMap processKeptEnchantments(Entity target, AttributeMap map) {
 		if (target.hasAttribute(Attribute.KEEPS_ENCHANTMENTS)) {
-			Stream.of(
-					Attribute.POISONOUS,
-					Attribute.DIVINE_SHIELD,
-					Attribute.STEALTH,
-					Attribute.TAUNT,
-					Attribute.CANNOT_ATTACK,
-					Attribute.ATTACK_EQUALS_HP,
-					Attribute.CANNOT_ATTACK_HEROES,
-					Attribute.CHARGE,
-					Attribute.DEFLECT,
-					Attribute.IMMUNE,
-					Attribute.ENRAGABLE,
-					Attribute.IMMUNE_WHILE_ATTACKING,
-					Attribute.FROZEN,
-					Attribute.KEEPS_ENCHANTMENTS,
-					Attribute.MAGNETIC,
-					Attribute.PERMANENT,
-					Attribute.RUSH,
-					Attribute.WITHER,
-					Attribute.INVOKE,
-					Attribute.LIFESTEAL,
-					Attribute.WINDFURY,
-					Attribute.ATTACK_BONUS,
-					Attribute.HP_BONUS
-			)
+			Attribute.getEnchantmentLikeAttributes()
+					.stream()
 					.filter(target::hasAttribute).forEach(k -> map.put(k, target.getAttributes().get(k)));
 
 			if (target instanceof Minion) {
@@ -691,6 +668,7 @@ public class SpellUtils {
 		// into set aside when that happens
 		boolean needsToBeRemoved = false;
 		if (output.getEntityLocation().equals(EntityLocation.UNASSIGNED)) {
+			logger.warn("castChildSpell {} {}: output {} had unassigned location", context.getGameId(), source, output);
 			output.setId(context.getLogic().generateId());
 			output.setOwner(player.getId());
 			output.moveOrAddTo(context, Zones.SET_ASIDE_ZONE);
@@ -805,7 +783,7 @@ public class SpellUtils {
 	public static <T extends Aura> boolean hasAura(GameContext context, int playerId, Class<T> auraClass) {
 		return context.getEntities()
 				.filter(e -> e.getOwner() == playerId && e.isInPlay())
-				.anyMatch(m -> context.getTriggersAssociatedWith(m.getReference()).stream()
+				.anyMatch(m -> context.getLogic().getActiveTriggers(m.getReference()).stream()
 						.filter(auraClass::isInstance)
 						.map(t -> (Aura) t)
 						.anyMatch(((Predicate<Aura>) Aura::isExpired).negate()));
@@ -822,7 +800,7 @@ public class SpellUtils {
 	 * @return A list of aura instances.
 	 */
 	public static <T extends Aura> List<T> getAuras(GameContext context, int playerId, @NotNull Class<T> auraClass) {
-		return context.getTriggerManager()
+		return context
 				.getTriggers()
 				.stream()
 				.filter(e -> e.getOwner() == playerId && !e.isExpired() && auraClass.isInstance(e) && e.isActivated())
@@ -842,7 +820,8 @@ public class SpellUtils {
 	 * @return
 	 */
 	public static <T extends Aura> List<T> getAuras(GameContext context, Class<T> auraClass, Entity target) {
-		return context.getTriggerManager().getTriggers().stream()
+		return context.getTriggers()
+				.stream()
 				.filter(aura -> auraClass.isInstance(aura) && !aura.isExpired() && aura.isActivated())
 				.map(auraClass::cast)
 				.filter(aura -> aura.getAffectedEntities().contains(target.getId()) || aura.getAffectedEntities().contains(target.getSourceCard().getId()))
@@ -863,7 +842,7 @@ public class SpellUtils {
 	public static SpellDesc[] getBonusesFromAura(GameContext context, int playerId, Class<? extends Aura> auraClass, Entity source, Entity target) {
 		return context.getEntities()
 				.filter(e -> e.getOwner() == playerId && e.isInPlay())
-				.flatMap(m -> context.getTriggersAssociatedWith(m.getReference()).stream()
+				.flatMap(m -> context.getLogic().getActiveTriggers(m.getReference()).stream()
 						.filter(auraClass::isInstance)
 						.map(t -> (Aura) t)
 						.filter(((Predicate<Aura>) Aura::isExpired).negate())

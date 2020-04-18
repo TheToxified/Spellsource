@@ -27,7 +27,7 @@ public final class SupremacyTrigger extends AfterPhysicalAttackTrigger {
 	}
 
 	@Override
-	public boolean fires(GameEvent event) {
+	public boolean fires(GameEvent event, Entity host) {
 		return event.getEventTarget() != null && event.getEventTarget().isDestroyed();
 	}
 }

@@ -413,12 +413,12 @@ public interface Games extends Verticle {
 					.maxMana(player.getMaxMana())
 					.lockedMana(player.getLockedMana());
 			playerEntities.add(heroEntity);
-			if (player.getHero().getHeroPower() != null) {
-				com.hiddenswitch.spellsource.client.models.Entity heroPowerEntity = getEntity(workingContext, player.getHero().getHeroPower(), localPlayerId);
+			if (!player.getHeroPowerZone().isEmpty()) {
+				com.hiddenswitch.spellsource.client.models.Entity heroPowerEntity = getEntity(workingContext, player.getHeroPowerZone().get(0), localPlayerId);
 				playerEntities.add(heroPowerEntity);
 			}
-			if (player.getHero().getWeapon() != null) {
-				com.hiddenswitch.spellsource.client.models.Entity weaponEntity = getEntity(workingContext, player.getHero().getWeapon(), localPlayerId);
+			if (!player.getWeaponZone().isEmpty()) {
+				com.hiddenswitch.spellsource.client.models.Entity weaponEntity = getEntity(workingContext, player.getWeaponZone().get(0), localPlayerId);
 				playerEntities.add(weaponEntity);
 			}
 		}
@@ -461,7 +461,7 @@ public interface Games extends Verticle {
 		var visibleEntityIds = entities.stream().map(com.hiddenswitch.spellsource.client.models.Entity::getId).collect(Collectors.toSet());
 
 		// Include enchantments
-		entities.addAll(workingContext.getTriggerManager().getTriggers()
+		entities.addAll(workingContext.getTriggers()
 				.stream()
 				.filter(f -> f instanceof Enchantment && visibleEntityIds.contains(f.getHostReference().getId()))
 				.map(t -> getEntity(workingContext, (Enchantment) t, localPlayerId))
@@ -532,6 +532,8 @@ public interface Games extends Verticle {
 			workingContext.updateAndGetGameOver();
 		}
 
+		var owner = workingContext.getPlayer(actor.getOwner());
+
 		Card card = actor.getSourceCard();
 		com.hiddenswitch.spellsource.client.models.Entity entity = new com.hiddenswitch.spellsource.client.models.Entity()
 				.description(actor.getDescription(workingContext, workingContext.getPlayer(actor.getOwner())))
@@ -540,10 +542,14 @@ public interface Games extends Verticle {
 				.entityType(actor.getEntityType())
 				.cardId(card.getCardId());
 
+		var extraAttack = 0;
 		if (actor instanceof Minion) {
 			entity.boardPosition(actor.getEntityLocation().getIndex());
 		} else if (actor instanceof Hero) {
 			entity.armor(actor.getArmor());
+			if (!owner.getWeaponZone().isEmpty() && owner.getWeaponZone().get(0).isActive()) {
+				extraAttack += owner.getWeaponZone().get(0).getAttack();
+			}
 		}
 
 		entity.owner(actor.getOwner());
@@ -554,7 +560,7 @@ public interface Games extends Verticle {
 		entity.rarity(card.getRarity());
 		entity.baseManaCost(card.getBaseManaCost());
 		entity.silenced(actor.hasAttribute(Attribute.SILENCED));
-		entity.deathrattles(!actor.getDeathrattles().isEmpty());
+		entity.deathrattles(actor.hasAttribute(Attribute.DEATHRATTLES));
 		boolean playable = actor.getOwner() == workingContext.getActivePlayerId()
 				&& actor.getOwner() == localPlayerId
 				&& workingContext.getStatus() == GameStatus.RUNNING
@@ -594,7 +600,7 @@ public interface Games extends Verticle {
 		entity.permanent(actor.hasAttribute(Attribute.PERMANENT));
 		entity.rush(actor.hasAttribute(Attribute.RUSH) || actor.hasAttribute(Attribute.AURA_RUSH));
 		entity.tribe(actor.getRace());
-		List<Trigger> triggers = workingContext.getTriggerManager().getUnexpiredTriggers(actor.getReference());
+		List<Trigger> triggers = workingContext.getLogic().getActiveTriggers(actor.getReference());
 		entity.hostsTrigger(triggers.size() > 0);
 		return entity;
 	}
@@ -713,7 +719,7 @@ public interface Games extends Verticle {
 
 		entity.heroClass(heroClass);
 		entity.cardType(card.getCardType());
-		boolean hostsTrigger = workingContext.getTriggerManager().getUnexpiredTriggers(card.getReference()).size() > 0;
+		boolean hostsTrigger = workingContext.getLogic().getActiveTriggers(card.getReference()).size() > 0;
 		// TODO: Run the game context to see if the card has any triggering side effects. If it does, then color its border yellow.
 		// I'd personally recommend making the glowing border effect be a custom programmable part of the .json file -doombubbles
 		switch (card.getCardType()) {
@@ -895,7 +901,7 @@ public interface Games extends Verticle {
 		int hpBonus = 0;
 		boolean hasTaunt = false;
 		hasTaunt |= entity.hasAttribute(Attribute.CARD_TAUNT);
-		for (WhereverTheyAreEnchantment e : context.getTriggerManager().getTriggers()
+		for (WhereverTheyAreEnchantment e : context.getTriggers()
 				.stream()
 				.filter(e -> !e.isExpired() && e.getOwner() == playerId && e instanceof WhereverTheyAreEnchantment)
 				.map(WhereverTheyAreEnchantment.class::cast)

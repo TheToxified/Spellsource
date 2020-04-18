@@ -7,7 +7,6 @@ import net.demilich.metastone.game.cards.Card;
 import net.demilich.metastone.game.cards.CardList;
 import net.demilich.metastone.game.entities.Actor;
 import net.demilich.metastone.game.entities.Entity;
-import net.demilich.metastone.game.entities.minions.Race;
 import net.demilich.metastone.game.spells.Spell;
 import net.demilich.metastone.game.spells.SpellUtils;
 import net.demilich.metastone.game.spells.desc.SpellArg;
@@ -48,6 +47,7 @@ public final class AddActorEffectsToTargetActorSpell extends Spell {
 	@Override
 	@Suspendable
 	protected void onCast(GameContext context, Player player, SpellDesc desc, Entity source, Entity target) {
+
 		Entity sourceEntity;
 		if (desc.containsKey(SpellArg.SECONDARY_TARGET)) {
 			sourceEntity = context.resolveSingleTarget(player, source, (EntityReference) desc.get(SpellArg.SECONDARY_TARGET));
@@ -95,20 +95,22 @@ public final class AddActorEffectsToTargetActorSpell extends Spell {
 		targetActor.getAttributes().putAll(sourceAttributes);
 		// Now apply the actual text
 		// TODO: Add the battlecry instead of replacing it!
+		/*
 		int newEnchantmentsIndex = targetActor.getEnchantments().size();
-		sourceCard.applyText(targetActor);
+		sourceCard.applyRace(targetActor);
 		targetActor.setRace(originalRace);
 		// If we're currently summoning this actor, do not apply the enchantments here. They will be applied by the
 		// summoning procedure itself
 		if (context.getSummonReferenceStack().isEmpty()) {
 			for (int i = newEnchantmentsIndex; i < targetActor.getEnchantments().size(); i++) {
-				context.getLogic().addGameEventListener(player, targetActor.getEnchantments().get(i), targetActor);
+				context.getLogic().addEnchantment(player, targetActor.getEnchantments().get(i), source, targetActor);
 			}
-		}
+		}*/
 
 
 		for (SpellDesc subSpell : desc.subSpells(0)) {
 			SpellUtils.castChildSpell(context, player, subSpell, source, target, sourceCard);
 		}
+		throw new UnsupportedOperationException();
 	}
 }

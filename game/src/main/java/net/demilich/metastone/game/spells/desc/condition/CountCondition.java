@@ -8,8 +8,8 @@ import net.demilich.metastone.game.spells.TargetPlayer;
 import net.demilich.metastone.game.spells.desc.filter.ComparisonOperation;
 
 /**
- * Evaluates to {@code true} if the {@link ConditionArg#TARGET_PLAYER} has en entity-count [ {@link ConditionArg#OPERATION} ]
- * {@link ConditionArg#VALUE} cards.
+ * {@code true} if the {@link ConditionArg#TARGET_PLAYER} has en entity-count [ {@link ConditionArg#OPERATION} ] {@link
+ * ConditionArg#VALUE} cards.
  */
 public abstract class CountCondition extends Condition {
 
@@ -23,11 +23,8 @@ public abstract class CountCondition extends Condition {
 	}
 
 	@Override
-	public final boolean isFulfilled(GameContext context, Player player, Entity source, Entity target) {
-		boolean invert = getDesc().getBool(ConditionArg.INVERT);
+	protected boolean isFulfilledForTarget(GameContext context, Player player, Entity source, Entity target, boolean invert, TargetPlayer targetPlayer) {
 		ConditionDesc desc = getDesc();
-		TargetPlayer targetPlayer = desc.containsKey(ConditionArg.TARGET_PLAYER) ? (TargetPlayer) desc.get(ConditionArg.TARGET_PLAYER)
-				: TargetPlayer.SELF;
 		int cardCount = 0;
 		int targetValue = desc.getValue(ConditionArg.VALUE, context, player, target, source, 0);
 		ComparisonOperation operation = (ComparisonOperation) desc.get(ConditionArg.OPERATION);

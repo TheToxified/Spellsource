@@ -3,6 +3,8 @@ package net.demilich.metastone.game.events;
 import net.demilich.metastone.game.GameContext;
 import net.demilich.metastone.game.entities.Entity;
 
+import static com.hiddenswitch.spellsource.client.models.GameEvent.EventTypeEnum.ENRAGE_CHANGED;
+
 public class EnrageChangedEvent extends GameEvent {
 
 	private final Entity target;
@@ -19,7 +21,7 @@ public class EnrageChangedEvent extends GameEvent {
 
 	@Override
 	public com.hiddenswitch.spellsource.client.models.GameEvent.EventTypeEnum getEventType() {
-		return com.hiddenswitch.spellsource.client.models.GameEvent.EventTypeEnum.ENRAGE_CHANGED;
+		return ENRAGE_CHANGED;
 	}
 
 }

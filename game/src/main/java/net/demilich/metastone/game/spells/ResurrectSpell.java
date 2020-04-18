@@ -74,8 +74,9 @@ public class ResurrectSpell extends Spell {
 			// allow functionality to resurrect cards with certain attributes they died with
 			Attribute attribute = (Attribute) desc.get(SpellArg.ATTRIBUTE);
 			if (attribute != null && resurrectedMinion.hasAttribute(attribute)) {
-				if (attribute == Attribute.MAGNETS) { //special coding to remagnetize the mechs for Kangor's Endless Army
-					summonedMinion = card.summon();
+				// special coding to remagnetize the mechs for Kangor's Endless Army
+				if (attribute == Attribute.MAGNETS) {
+					summonedMinion = card.minion();
 					context.getLogic().removeAttribute(summonedMinion, null, Attribute.MAGNETS);
 					String[] magnets = (String[]) resurrectedMinion.getAttribute(Attribute.MAGNETS);
 					for (String magnet : magnets) {
@@ -84,9 +85,9 @@ public class ResurrectSpell extends Spell {
 					}
 				} else {
 					card.setAttribute(attribute, resurrectedMinion.getAttributeValue(attribute));
-					summonedMinion = card.summon();
+					summonedMinion = card.minion();
 				}
-			} else summonedMinion = card.summon();
+			} else summonedMinion = card.minion();
 
 			boolean summoned = context.getLogic().summon(player.getId(), summonedMinion, source, -1, false);
 			Entity newMinion = summonedMinion.transformResolved(context);
